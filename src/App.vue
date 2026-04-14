@@ -2,6 +2,7 @@
   <div class="min-h-screen bg-black text-white font-sans">
     <NavBar
       :account="account"
+      :role="role"
       :connecting="connecting"
       @connect="handleConnect"
     />
@@ -75,6 +76,9 @@
 
     <!-- Toast notifications -->
     <ToastNotification ref="toast" />
+
+    <!-- Demo guide panel -->
+    <DemoGuide />
   </div>
 </template>
 
@@ -86,6 +90,7 @@ import DonateSection from './components/DonateSection.vue'
 import OwnerSection from './components/OwnerSection.vue'
 import RefundSection from './components/RefundSection.vue'
 import ToastNotification from './components/ToastNotification.vue'
+import DemoGuide from './components/DemoGuide.vue'
 import {
   connectWallet,
   getWeb3Instance,
@@ -131,6 +136,11 @@ const isOwner = computed(() => {
   return account.value.toLowerCase() === ownerAddress.value.toLowerCase()
 })
 
+const role = computed(() => {
+  if (!account.value) return null
+  return isOwner.value ? 'owner' : 'donor'
+})
+
 const showRefund = computed(() => {
   return isEnded.value && !campaign.value.goalReached
 })
@@ -142,6 +152,7 @@ provide('web3State', {
   campaign,
   isEnded,
   isOwner,
+  role,
 })
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -325,11 +336,19 @@ onMounted(async () => {
     // no-op
   }
 
-  // Listen for account changes
+  // Listen for account changes — re-detect role and refresh
   window.ethereum.on('accountsChanged', async (accounts) => {
-    account.value = accounts[0] || null
-    if (account.value) await refreshCampaignInfo()
-    else userDonation.value = 0
+    const newAccount = accounts[0] || null
+    account.value = newAccount
+
+    if (newAccount) {
+      await refreshCampaignInfo()
+      const detectedRole = isOwner.value ? 'owner' : 'donor'
+      const label = detectedRole === 'owner' ? 'Owner mode' : 'Donor mode'
+      showToast('success', `Switched to ${label}`, formatShort(newAccount))
+    } else {
+      userDonation.value = 0
+    }
   })
 
   // Listen for chain changes
