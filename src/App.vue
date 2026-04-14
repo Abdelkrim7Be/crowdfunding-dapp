@@ -97,6 +97,8 @@ import {
   getContractInstance,
   fromWei,
   toWei,
+  detectRole,
+  registerEthereumListeners,
   CONTRACT_ADDRESS,
 } from './web3.js'
 
@@ -336,24 +338,20 @@ onMounted(async () => {
     // no-op
   }
 
-  // Listen for account changes — re-detect role and refresh
-  window.ethereum.on('accountsChanged', async (accounts) => {
-    const newAccount = accounts[0] || null
-    account.value = newAccount
-
-    if (newAccount) {
-      await refreshCampaignInfo()
-      const detectedRole = isOwner.value ? 'owner' : 'donor'
-      const label = detectedRole === 'owner' ? 'Owner mode' : 'Donor mode'
-      showToast('success', `Switched to ${label}`, formatShort(newAccount))
-    } else {
-      userDonation.value = 0
-    }
-  })
-
-  // Listen for chain changes
-  window.ethereum.on('chainChanged', () => {
-    window.location.reload()
-  })
+  // Listen for account and chain changes via shared helper
+  registerEthereumListeners(
+    async (newAccount) => {
+      account.value = newAccount
+      if (newAccount) {
+        await refreshCampaignInfo()
+        const detectedRole = detectRole(newAccount, ownerAddress.value)
+        const label = detectedRole === 'owner' ? 'Owner mode' : 'Donor mode'
+        showToast('success', `Switched to ${label}`, formatShort(newAccount))
+      } else {
+        userDonation.value = 0
+      }
+    },
+    () => window.location.reload()
+  )
 })
 </script>
