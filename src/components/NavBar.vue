@@ -1,16 +1,19 @@
 <template>
-  <nav class="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-black/80 backdrop-blur-xl">
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+  <nav class="sticky top-0 z-50 border-b border-white/5 bg-black/80 backdrop-blur-sm">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+
       <!-- Logo -->
       <div class="flex items-center gap-2">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M10 2L3 7V18H8V13H12V18H17V7L10 2Z" fill="white" />
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="white">
+          <path d="M7 0L9.5 4.5H14L10.5 7.5L12 12.5L7 9.5L2 12.5L3.5 7.5L0 4.5H4.5Z"/>
         </svg>
         <span class="font-bold text-white tracking-tight text-base">FundChain</span>
       </div>
 
-      <!-- Wallet Button -->
-      <div>
+      <!-- Wallet area -->
+      <div class="flex items-center gap-2">
+
+        <!-- Not connected -->
         <button
           v-if="!account"
           @click="$emit('connect')"
@@ -27,27 +30,30 @@
           <span v-else>Connect Wallet</span>
         </button>
 
-        <div v-else class="flex items-center gap-2">
+        <!-- Connected -->
+        <template v-else>
           <!-- Address pill -->
-          <div class="flex items-center gap-2 bg-white/10 rounded-full px-4 py-1.5">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)] shrink-0"></span>
-            <span class="font-mono text-xs text-white tracking-wide">{{ formattedAddress }}</span>
+          <div class="flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
+            <span class="font-mono text-xs text-white tracking-wide hidden sm:inline">{{ formattedAddress }}</span>
           </div>
 
-          <!-- Role badge -->
+          <!-- Owner badge -->
           <span
             v-if="role === 'owner'"
-            class="bg-white text-black text-xs font-semibold px-2.5 py-0.5 rounded-full leading-5"
+            class="bg-white text-black text-xs font-semibold px-3 py-1 rounded-full leading-5 tracking-tight"
           >
             Owner
           </span>
+
+          <!-- Donor badge -->
           <span
             v-else-if="role === 'donor'"
-            class="border border-white/20 text-white text-xs font-medium px-2.5 py-0.5 rounded-full leading-5"
+            class="border border-white/20 text-white text-xs font-medium px-3 py-1 rounded-full leading-5 hidden sm:inline"
           >
             Donor
           </span>
-        </div>
+        </template>
       </div>
     </div>
   </nav>
@@ -58,18 +64,9 @@ import { computed } from 'vue'
 import { formatAddress } from '../web3.js'
 
 const props = defineProps({
-  account: {
-    type: String,
-    default: null,
-  },
-  role: {
-    type: String,
-    default: null,
-  },
-  connecting: {
-    type: Boolean,
-    default: false,
-  },
+  account:    { type: String,  default: null },
+  role:       { type: String,  default: null },
+  connecting: { type: Boolean, default: false },
 })
 
 defineEmits(['connect'])
