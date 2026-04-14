@@ -94,7 +94,7 @@
 </template>
 
 <script setup>
-import { computed, ref, watch, onMounted } from 'vue'
+import { computed, ref, watch, onMounted, onUnmounted } from 'vue'
 
 const props = defineProps({
   campaign: {
@@ -144,9 +144,35 @@ function animateCounter(refVal, target, duration = 900) {
 watch(() => props.campaign.raised, (val) => animateCounter(displayRaised, val))
 watch(() => props.campaign.donorsCount, (val) => animateCounter(displayDonors, val))
 
+// ── Live countdown timer ───────────────────────────────────────────────────────
+
+const localTimeLeft = ref(0)
+let countdownInterval = null
+
+function startCountdown(seconds) {
+  localTimeLeft.value = Math.max(0, Number(seconds))
+  if (countdownInterval) clearInterval(countdownInterval)
+  if (localTimeLeft.value <= 0) return
+  countdownInterval = setInterval(() => {
+    if (localTimeLeft.value <= 0) {
+      clearInterval(countdownInterval)
+      return
+    }
+    localTimeLeft.value -= 1
+  }, 1000)
+}
+
+// Sync whenever contract data refreshes (after transactions, on page load)
+watch(() => props.campaign.timeLeft, (val) => startCountdown(val))
+
 onMounted(() => {
   if (props.campaign.raised) animateCounter(displayRaised, props.campaign.raised)
   if (props.campaign.donorsCount) animateCounter(displayDonors, props.campaign.donorsCount)
+  startCountdown(props.campaign.timeLeft)
+})
+
+onUnmounted(() => {
+  if (countdownInterval) clearInterval(countdownInterval)
 })
 
 // ── Computed ──────────────────────────────────────────────────────────────────
@@ -156,7 +182,7 @@ const progressPercent = computed(() => {
   return Math.min(Math.round((props.campaign.raised / props.campaign.goal) * 100), 100)
 })
 
-const isEnded = computed(() => Number(props.campaign.timeLeft) <= 0)
+const isEnded = computed(() => localTimeLeft.value <= 0)
 
 const iconRaised = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L8 8H2l5 4-2 7 7-4 7 4-2-7 5-4h-6z"/></svg>`
 const iconGoal = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`
@@ -182,19 +208,21 @@ const stats = computed(() => [
   {
     label: 'Time Left',
     icon: iconTime,
-    displayValue: formatTimeLeft(props.campaign.timeLeft),
+    displayValue: formatTimeLeft(localTimeLeft.value),
   },
 ])
 
 function formatTimeLeft(seconds) {
   const s = Number(seconds)
   if (s <= 0) return 'Ended'
-  const days = Math.floor(s / 86400)
-  const hours = Math.floor((s % 86400) / 3600)
+  const days    = Math.floor(s / 86400)
+  const hours   = Math.floor((s % 86400) / 3600)
   const minutes = Math.floor((s % 3600) / 60)
-  if (days > 0) return `${days}d ${hours}h`
-  if (hours > 0) return `${hours}h ${minutes}m`
-  return `${minutes}m`
+  const secs    = s % 60
+  if (days > 0)    return `${days}d ${hours}h`
+  if (hours > 0)   return `${hours}h ${minutes}m`
+  if (minutes > 0) return `${minutes}m ${secs}s`
+  return `${secs}s`
 }
 </script>
 
