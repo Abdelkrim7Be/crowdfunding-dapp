@@ -27,12 +27,26 @@
           <span v-else>Connect Wallet</span>
         </button>
 
-        <div
-          v-else
-          class="flex items-center gap-2 bg-white/10 rounded-full px-4 py-1.5 text-sm text-white font-medium"
-        >
-          <span class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]"></span>
-          <span class="font-mono text-xs tracking-wide">{{ formattedAddress }}</span>
+        <div v-else class="flex items-center gap-2">
+          <!-- Address pill -->
+          <div class="flex items-center gap-2 bg-white/10 rounded-full px-4 py-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)] shrink-0"></span>
+            <span class="font-mono text-xs text-white tracking-wide">{{ formattedAddress }}</span>
+          </div>
+
+          <!-- Role badge -->
+          <span
+            v-if="role === 'owner'"
+            class="bg-white text-black text-xs font-semibold px-2.5 py-0.5 rounded-full leading-5"
+          >
+            Owner
+          </span>
+          <span
+            v-else-if="role === 'donor'"
+            class="border border-white/20 text-white text-xs font-medium px-2.5 py-0.5 rounded-full leading-5"
+          >
+            Donor
+          </span>
         </div>
       </div>
     </div>
@@ -45,6 +59,10 @@ import { formatAddress } from '../web3.js'
 
 const props = defineProps({
   account: {
+    type: String,
+    default: null,
+  },
+  role: {
     type: String,
     default: null,
   },
