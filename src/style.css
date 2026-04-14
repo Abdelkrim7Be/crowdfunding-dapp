@@ -4,20 +4,42 @@
 @tailwind utilities;
 
 @layer base {
-  * {
+  *,
+  *::before,
+  *::after {
     box-sizing: border-box;
   }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     background-color: #000000;
     color: #ffffff;
     font-family: 'Inter', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
+  }
+
+  /* Remove number input arrows */
+  input[type='number']::-webkit-inner-spin-button,
+  input[type='number']::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type='number'] {
+    -moz-appearance: textfield;
   }
 }
 
 @layer utilities {
   .bg-white\/8 {
+    background-color: rgb(255 255 255 / 0.08);
+  }
+
+  .hover\:bg-white\/8:hover {
     background-color: rgb(255 255 255 / 0.08);
   }
 }
