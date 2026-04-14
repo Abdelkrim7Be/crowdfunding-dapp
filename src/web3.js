@@ -357,8 +357,8 @@ export function getWeb3Instance() {
   return new Web3(window.ethereum);
 }
 
-export function getContractInstance(web3) {
-  return new web3.eth.Contract(CONTRACT_ABI, CONTRACT_ADDRESS);
+export function getContractInstance(web3, address = CONTRACT_ADDRESS) {
+  return new web3.eth.Contract(CONTRACT_ABI, address);
 }
 
 export function formatAddress(address) {
