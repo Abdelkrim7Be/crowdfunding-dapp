@@ -1,5 +1,9 @@
 <template>
-  <div class="bg-white/5 border border-white/10 rounded-2xl p-6 sm:p-8 space-y-5">
+  <div class="space-y-2">
+    <!-- Role label -->
+    <p class="text-zinc-600 text-xs font-medium uppercase tracking-widest px-1">Donor Actions</p>
+
+    <div class="bg-white/5 border border-white/10 rounded-2xl p-6 sm:p-8 space-y-5">
     <div class="space-y-1">
       <h2 class="text-white font-semibold text-lg tracking-tight">Support this campaign</h2>
       <p class="text-zinc-500 text-sm">Every contribution brings this project closer to its goal.</p>
@@ -42,6 +46,7 @@
 
     <!-- Reason not able to donate -->
     <p v-if="disabledReason" class="text-zinc-600 text-xs text-center">{{ disabledReason }}</p>
+  </div>
   </div>
 </template>
 
