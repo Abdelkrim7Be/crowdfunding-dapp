@@ -1,5 +1,14 @@
 import Web3 from "web3";
 
+// Suppress web3.js unhandled provider detection rejections on page load
+if (typeof window !== "undefined") {
+  window.addEventListener("unhandledrejection", (event) => {
+    if (event?.reason?.message?.includes("Failed to connect to MetaMask")) {
+      event.preventDefault();
+    }
+  });
+}
+
 export const CONTRACT_ADDRESS = "0x20F7CA39d9aBa4eB0B53Bd7FF8E1951A0831dFD9";
 
 export const CONTRACT_ABI = [
@@ -315,16 +324,30 @@ export const CONTRACT_ABI = [
   },
 ];
 
+let _connectingInProgress = false;
+
 export async function connectWallet() {
   if (!window.ethereum) {
     throw new Error(
       "MetaMask is not installed. Please install MetaMask to use this app.",
     );
   }
-  const accounts = await window.ethereum.request({
-    method: "eth_requestAccounts",
-  });
-  return accounts[0];
+  if (_connectingInProgress) {
+    const err = new Error(
+      "MetaMask popup is already open. Please check MetaMask.",
+    );
+    err.code = -32002;
+    throw err;
+  }
+  _connectingInProgress = true;
+  try {
+    const accounts = await window.ethereum.request({
+      method: "eth_requestAccounts",
+    });
+    return accounts[0];
+  } finally {
+    _connectingInProgress = false;
+  }
 }
 
 export function getWeb3Instance() {
@@ -368,7 +391,9 @@ export function formatTimeLeft(seconds) {
  */
 export function detectRole(account, ownerAddress) {
   if (!account || !ownerAddress) return null;
-  return account.toLowerCase() === ownerAddress.toLowerCase() ? "owner" : "donor";
+  return account.toLowerCase() === ownerAddress.toLowerCase()
+    ? "owner"
+    : "donor";
 }
 
 /**
