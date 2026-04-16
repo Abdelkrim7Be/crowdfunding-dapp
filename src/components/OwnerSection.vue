@@ -1,5 +1,9 @@
 <template>
-  <div class="bg-white/5 border border-white/10 rounded-2xl p-6 sm:p-8 space-y-5">
+  <div class="space-y-2">
+    <!-- Role label -->
+    <p class="text-zinc-600 text-xs font-medium uppercase tracking-widest px-1">Owner Actions</p>
+
+    <div class="bg-white/5 border border-white/10 rounded-2xl p-6 sm:p-8 space-y-5">
     <div class="flex items-start gap-3">
       <div class="w-8 h-8 rounded-full bg-white/10 border border-white/20 flex items-center justify-center shrink-0 mt-0.5">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -48,6 +52,7 @@
     <p v-if="!canWithdraw && !pending" class="text-zinc-600 text-xs text-center">
       {{ withdrawBlockReason }}
     </p>
+  </div>
   </div>
 </template>
 
