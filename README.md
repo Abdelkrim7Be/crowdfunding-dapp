@@ -1,4 +1,4 @@
-# FundChain — Decentralized Crowdfunding DApp
+# FundChain : Decentralized Crowdfunding DApp
 
 > A trustless, permissionless crowdfunding platform built on Ethereum.  
 > Smart contracts handle all financial logic — no backend, no middleman, no intermediaries.
